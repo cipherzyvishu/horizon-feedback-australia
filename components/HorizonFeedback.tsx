@@ -135,7 +135,7 @@ export default function HorizonFeedback() {
     };
 
     const handleSubmit = async () => {
-        if (!name.trim() || rating === 0) return;
+        if (!name.trim() || !email.trim() || rating === 0) return;
         setLoading(true);
         const entry = {
             id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -174,7 +174,7 @@ export default function HorizonFeedback() {
 
     const resetForm = () => { setName(""); setEmail(""); setSession(SESSIONS[0]); setRating(0); setComment(""); setSubmitted(false); setView("submit"); };
     const openAdmin = () => { setView("admin"); setAdminAuth(false); setAdminPass(""); };
-    const authAdmin = () => { if (adminPass === "horizon2026") { setAdminAuth(true); loadFeedback(); } };
+    const authAdmin = () => { if (adminPass === "Zycus@2416636") { setAdminAuth(true); loadFeedback(); } };
 
     const filteredFeedback = filterSession === "All" ? feedbackList : feedbackList.filter((f: any) => f.session === filterSession);
     const avgRating = filteredFeedback.length > 0 ? (filteredFeedback.reduce((s: number, f: any) => s + f.rating, 0) / filteredFeedback.length).toFixed(1) : "—";
@@ -242,7 +242,7 @@ export default function HorizonFeedback() {
                             <input style={S.input} placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => setName(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
                         <div style={S.field}>
-                            <label style={S.label}>Email</label>
+                            <label style={S.label}>Email <span style={{ color: C.gold }}>*</span></label>
                             <input style={S.input} placeholder="sarah@company.com" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
 
@@ -297,8 +297,8 @@ export default function HorizonFeedback() {
                             <label style={S.label}>Comments (optional)</label>
                             <textarea style={S.textarea} placeholder="What was the highlight of your experience? Any moments that stood out?" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
-                        <button style={{ ...S.submitBtn, opacity: !name.trim() || rating === 0 ? 0.4 : 1, cursor: !name.trim() || rating === 0 ? "not-allowed" : "pointer" }}
-                            onClick={handleSubmit} disabled={!name.trim() || rating === 0 || loading}>
+                        <button style={{ ...S.submitBtn, opacity: !name.trim() || !email.trim() || rating === 0 ? 0.4 : 1, cursor: !name.trim() || !email.trim() || rating === 0 ? "not-allowed" : "pointer" }}
+                            onClick={handleSubmit} disabled={!name.trim() || !email.trim() || rating === 0 || loading}>
                             {loading ? "Submitting..." : "Submit Feedback"}
                         </button>
                     </div>
