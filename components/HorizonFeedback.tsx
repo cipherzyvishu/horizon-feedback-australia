@@ -190,10 +190,6 @@ export default function HorizonFeedback() {
             <style>{`
               @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
               button { touch-action: manipulation; }
-              /* Allow zone cards to shrink below content size */
-              .hf-zone-card { min-width: 0; }
-              .hf-zone-btns { min-width: 0; }
-              .hf-zone-btn  { min-width: 0; flex-shrink: 1; }
               @media (max-width: 600px) {
                 .hf-container { padding: 24px 14px !important; }
                 .hf-card { padding: 24px 16px !important; border-radius: 16px !important; overflow: hidden; }
@@ -204,18 +200,19 @@ export default function HorizonFeedback() {
                 .hf-card { padding: 20px 12px !important; }
                 .hf-logo { max-width: 210px !important; }
                 .hf-zone-row { gap: 4px !important; overflow: hidden; }
-                .hf-zone-detractor { flex: 1.15 !important; }
-                .hf-zone-neutral   { flex: 0.9  !important; }
-                .hf-zone-promoter  { flex: 0.95 !important; }
-                .hf-zone-btns { gap: 3px !important; }
-                .hf-zone-btn { width: 28px !important; height: 28px !important; font-size: 12px !important; border-radius: 14px !important; }
+                .hf-zone-card { min-width: 0; padding-left: 4px !important; padding-right: 4px !important; }
+                .hf-zone-detractor { flex: 1.2 !important; }
+                .hf-zone-neutral   { flex: 0.9 !important; }
+                .hf-zone-promoter  { flex: 0.9 !important; }
+                .hf-zone-btns { min-width: 0; gap: 2px !important; }
+                .hf-zone-btn { min-width: 0; flex-shrink: 1; width: 28px !important; height: 28px !important; font-size: 12px !important; border-radius: 14px !important; }
               }
               @media (max-width: 380px) {
                 .hf-zone-row { gap: 3px !important; }
                 .hf-zone-detractor { flex: 1.25 !important; }
                 .hf-zone-neutral   { flex: 0.85 !important; }
                 .hf-zone-promoter  { flex: 0.9  !important; }
-                .hf-zone-btns { gap: 2px !important; }
+                .hf-zone-btns { gap: 1px !important; }
                 .hf-zone-btn { width: 24px !important; height: 24px !important; font-size: 11px !important; border-radius: 12px !important; }
                 .hf-stats-row { flex-direction: column !important; gap: 8px !important; }
               }
