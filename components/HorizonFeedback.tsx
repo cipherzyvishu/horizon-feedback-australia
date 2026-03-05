@@ -308,7 +308,7 @@ export default function HorizonFeedback() {
                         </div>
                         <button style={{ ...S.submitBtn, opacity: !name.trim() || rating === 0 ? 0.4 : 1, cursor: !name.trim() || rating === 0 ? "not-allowed" : "pointer" }}
                             onClick={handleSubmit} disabled={!name.trim() || rating === 0 || loading}>
-                            {loading ? "Sending your feedback..." : "Share My Experience ✨"}
+                            {loading ? "Submitting..." : "Submit Feedback"}
                         </button>
                     </div>
                 )}
