@@ -18,10 +18,10 @@ const ZYCUS_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAnCAIAAA
 const HORIZON_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAACpCAYAAAA1BwfNAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAACuxElEQVR42uxdeXxU1fl+zntnJpksmSxkIwtLIBC2iCCoIEsWNEdFUVGrtdrWSrVa21rX0eo2mq1W21o91mqsXoG60e";
 
 /* NPS-style 1–10 Rating Zones — Promoter-first ordering */
-const ZONES: { [key: string]: { label: string; emoji: string; color: string; bg: string; border: string; range: number[]; featured: boolean } } = {
-    promoter: { label: "Loved it!", emoji: "🤩", color: "#16a34a", bg: "rgba(22,163,74,0.14)", border: "rgba(22,163,74,0.4)", range: [8, 9, 10], featured: true },
-    neutral: { label: "It was OK", emoji: "😐", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.2)", range: [5, 6, 7], featured: false },
-    detractor: { label: "Needs work", emoji: "😕", color: "#dc2626", bg: "rgba(220,38,38,0.06)", border: "rgba(220,38,38,0.15)", range: [1, 2, 3, 4], featured: false },
+const ZONES: { [key: string]: { label: string; emoji: string; color: string; bg: string; border: string; range: number[]; featured: boolean; cls: string } } = {
+    promoter: { label: "Loved it!", emoji: "🤩", color: "#16a34a", bg: "rgba(22,163,74,0.14)", border: "rgba(22,163,74,0.4)", range: [8, 9, 10], featured: true, cls: "hf-zone-promoter" },
+    neutral: { label: "It was OK", emoji: "😐", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.2)", range: [5, 6, 7], featured: false, cls: "hf-zone-neutral" },
+    detractor: { label: "Needs work", emoji: "😕", color: "#dc2626", bg: "rgba(220,38,38,0.06)", border: "rgba(220,38,38,0.15)", range: [1, 2, 3, 4], featured: false, cls: "hf-zone-detractor" },
 };
 const getZone = (r: number) => r <= 4 ? ZONES.detractor : r <= 7 ? ZONES.neutral : ZONES.promoter;
 const ZONE_ORDER = [ZONES.detractor, ZONES.neutral, ZONES.promoter];
@@ -187,15 +187,48 @@ export default function HorizonFeedback() {
     return (
         <div style={S.root}>
             <link href="https://fonts.googleapis.com/css2?family=Caladea:wght@400;700&display=swap" rel="stylesheet" />
+            <style>{`
+              @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+              button { touch-action: manipulation; }
+              /* Allow zone cards to shrink below content size */
+              .hf-zone-card { min-width: 0; }
+              .hf-zone-btns { min-width: 0; }
+              .hf-zone-btn  { min-width: 0; flex-shrink: 1; }
+              @media (max-width: 600px) {
+                .hf-container { padding: 24px 14px !important; }
+                .hf-card { padding: 24px 16px !important; border-radius: 16px !important; overflow: hidden; }
+                .hf-logo { max-width: 240px !important; }
+              }
+              @media (max-width: 480px) {
+                .hf-container { padding: 20px 12px !important; }
+                .hf-card { padding: 20px 12px !important; }
+                .hf-logo { max-width: 210px !important; }
+                .hf-zone-row { gap: 4px !important; overflow: hidden; }
+                .hf-zone-detractor { flex: 1.15 !important; }
+                .hf-zone-neutral   { flex: 0.9  !important; }
+                .hf-zone-promoter  { flex: 0.95 !important; }
+                .hf-zone-btns { gap: 3px !important; }
+                .hf-zone-btn { width: 28px !important; height: 28px !important; font-size: 12px !important; border-radius: 14px !important; }
+              }
+              @media (max-width: 380px) {
+                .hf-zone-row { gap: 3px !important; }
+                .hf-zone-detractor { flex: 1.25 !important; }
+                .hf-zone-neutral   { flex: 0.85 !important; }
+                .hf-zone-promoter  { flex: 0.9  !important; }
+                .hf-zone-btns { gap: 2px !important; }
+                .hf-zone-btn { width: 24px !important; height: 24px !important; font-size: 11px !important; border-radius: 12px !important; }
+                .hf-stats-row { flex-direction: column !important; gap: 8px !important; }
+              }
+            `}</style>
             <div style={S.bgGrid} />
             <div style={S.bgGlowGold} />
             <div style={S.bgGlowCyan} />
 
-            <div style={{ ...S.container, opacity: animateIn ? 0 : 1, transform: animateIn ? "translateY(24px)" : "translateY(0)", transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+            <div className="hf-container" style={{ ...S.container, opacity: animateIn ? 0 : 1, transform: animateIn ? "translateY(24px)" : "translateY(0)", transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)" }}>
 
                 {/* HEADER with actual logos */}
                 <div style={S.header}>
-                    <img src={HORIZON_LOGO} alt="Zycus Horizon" style={{ width: "100%", maxWidth: 340, marginBottom: 8 }} />
+                    <img src={HORIZON_LOGO} alt="Zycus Horizon" className="hf-logo" style={{ width: "100%", maxWidth: 340, marginBottom: 8 }} />
                     <div style={S.editionText}>EU &amp; UK Edition 2026</div>
                     <DiamondDivider />
                     <div style={S.venueLine}>InterContinental Vienna, Austria</div>
@@ -204,7 +237,7 @@ export default function HorizonFeedback() {
 
                 {/* SUBMIT */}
                 {view === "submit" && (
-                    <div style={{ ...S.card, opacity: submitted ? 0 : 1, transform: submitted ? "scale(0.96)" : "scale(1)", transition: "all 0.4s ease" }}>
+                    <div className="hf-card" style={{ ...S.card, opacity: submitted ? 0 : 1, transform: submitted ? "scale(0.96)" : "scale(1)", transition: "all 0.4s ease" }}>
                         <h2 style={S.cardTitle}>How Amazing Was Your Experience? ✨</h2>
                         <p style={S.cardSub}>We&apos;d love to hear what made Horizon special for you!</p>
                         <div style={S.field}>
@@ -218,12 +251,12 @@ export default function HorizonFeedback() {
 
                         <div style={S.field}>
                             <label style={S.label}>How would you rate it? <span style={{ color: C.gold }}>*</span></label>
-                            <div style={{ ...S.zoneRow, alignItems: "flex-end" }}>
+                            <div className="hf-zone-row" style={{ ...S.zoneRow, alignItems: "flex-end" }}>
                                 {ZONE_ORDER.map((z) => {
                                     const isFeatured = z.featured;
                                     const isActive = rating > 0 && z.range.includes(rating);
                                     return (
-                                        <div key={z.label} style={{
+                                        <div key={z.label} className={`hf-zone-card ${z.cls}`} style={{
                                             ...S.zoneCard,
                                             background: z.bg,
                                             borderColor: isActive ? z.color : z.border,
@@ -235,13 +268,13 @@ export default function HorizonFeedback() {
                                         }}>
                                             <div style={{ fontSize: isFeatured ? 36 : 24, lineHeight: 1, transition: "font-size 0.3s", marginBottom: 4 }}>{z.emoji}</div>
                                             <div style={{ fontSize: isFeatured ? 12 : 10, fontWeight: 700, color: z.color, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 8, opacity: isFeatured ? 1 : 0.7 }}>{z.label}</div>
-                                            <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                                            <div className="hf-zone-btns" style={{ display: "flex", gap: 6, justifyContent: "center" }}>
                                                 {z.range.map((v) => {
                                                     const active = rating === v;
                                                     const hov = hovered === v;
                                                     const btnSize = 34;
                                                     return (
-                                                        <button key={v} style={{
+                                                        <button key={v} className="hf-zone-btn" style={{
                                                             ...S.zoneNumBtn,
                                                             width: btnSize,
                                                             height: btnSize,
@@ -288,7 +321,7 @@ export default function HorizonFeedback() {
                     const isPromoter = rating >= 8;
                     const isDetractor = rating <= 4;
                     return (
-                        <div style={S.card}>
+                        <div className="hf-card" style={S.card}>
                             <div style={{ textAlign: "center", padding: "24px 0" }}>
                                 {isPromoter && (
                                     <>
@@ -299,7 +332,7 @@ export default function HorizonFeedback() {
                                             Thank you for the incredible rating! Feedback like yours inspires us to keep pushing boundaries.
                                         </p>
                                         <p style={{ fontSize: 13, color: C.gold, marginBottom: 28 }}>🌟 You&apos;re helping shape the future of procurement innovation!</p>
-                                        <style>{`@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }`}</style>
+
                                     </>
                                 )}
                                 {!isPromoter && !isDetractor && (
@@ -326,7 +359,7 @@ export default function HorizonFeedback() {
 
                 {/* ADMIN LOGIN */}
                 {view === "admin" && !adminAuth && (
-                    <div style={S.card}>
+                    <div className="hf-card" style={S.card}>
                         <h2 style={S.cardTitle}>Admin Dashboard</h2>
                         <p style={S.cardSub}>Enter the admin password to access feedback data.</p>
                         <div style={S.field}>
@@ -334,13 +367,13 @@ export default function HorizonFeedback() {
                                 onChange={(e) => setAdminPass(e.target.value)} onKeyDown={(e) => e.key === "Enter" && authAdmin()} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
                         <button style={S.submitBtn} onClick={authAdmin}>Access Dashboard</button>
-                        <p style={{ ...S.cardSub, fontSize: 12, marginTop: 12, textAlign: "center" }}>Hint: horizon2026</p>
+
                     </div>
                 )}
 
                 {/* ADMIN DASHBOARD */}
                 {view === "admin" && adminAuth && (
-                    <div style={S.card}>
+                    <div className="hf-card" style={S.card}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 4 }}>
                             <h2 style={{ ...S.cardTitle, marginBottom: 0 }}>Feedback Dashboard</h2>
                             <div style={{ display: "flex", gap: 8 }}>
@@ -367,7 +400,7 @@ export default function HorizonFeedback() {
                                     )}
                                     {sheetsStatus === "testing" && <div style={{ fontSize: 12, color: C.cyan, marginTop: 6 }}>⏳ Sending test entry...</div>}
                                 </div>
-                                <div style={S.statsRow}>
+                                <div className="hf-stats-row" style={S.statsRow}>
                                     <div style={S.statCard}><div style={S.statNum}>{filteredFeedback.length}</div><div style={S.statLabel}>Responses</div></div>
                                     <div style={{ ...S.statCard, borderColor: C.goldBorder }}><div style={{ ...S.statNum, color: C.gold }}>{avgRating}</div><div style={S.statLabel}>Avg Rating</div></div>
                                     <div style={S.statCard}><div style={S.statNum}>{filteredFeedback.length > 0 ? getZone(Math.round(parseFloat(avgRating) || 5)).emoji : "—"}</div><div style={S.statLabel}>Sentiment</div></div>
@@ -444,9 +477,9 @@ const S: Record<string, React.CSSProperties> = {
     cardSub: { fontSize: 14, color: C.white40, marginTop: 0, marginBottom: 24, lineHeight: 1.5 },
     field: { marginBottom: 20 },
     label: { display: "block", fontSize: 13, fontWeight: 500, color: C.white60, marginBottom: 8, letterSpacing: 0.3 },
-    input: { width: "100%", padding: "12px 16px", fontSize: 15, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", transition: "border-color 0.2s" },
-    select: { width: "100%", padding: "12px 16px", fontSize: 15, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", appearance: "none" },
-    textarea: { width: "100%", padding: "12px 16px", fontSize: 15, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", resize: "vertical", minHeight: 80, transition: "border-color 0.2s" },
+    input: { width: "100%", padding: "12px 16px", fontSize: 16, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", transition: "border-color 0.2s" },
+    select: { width: "100%", padding: "12px 16px", fontSize: 16, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", appearance: "none" },
+    textarea: { width: "100%", padding: "12px 16px", fontSize: 16, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 10, color: C.white, outline: "none", fontFamily: "'Caladea', serif", boxSizing: "border-box", resize: "vertical", minHeight: 80, transition: "border-color 0.2s" },
     zoneRow: { display: "flex", gap: 8 },
     zoneCard: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "14px 8px 14px", borderRadius: 14, border: "2px solid", transition: "border-color 0.3s ease" },
     zoneNumBtn: { display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 20, cursor: "pointer", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", background: "transparent", fontFamily: "'Caladea', serif", fontSize: 14, fontWeight: 700, padding: 0, border: "2px solid" },
