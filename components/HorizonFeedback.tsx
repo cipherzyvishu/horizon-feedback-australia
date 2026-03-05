@@ -242,7 +242,7 @@ export default function HorizonFeedback() {
                             <input style={S.input} placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => setName(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
                         <div style={S.field}>
-                            <label style={S.label}>Email (optional)</label>
+                            <label style={S.label}>Email</label>
                             <input style={S.input} placeholder="sarah@company.com" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
 
