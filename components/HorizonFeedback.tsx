@@ -135,7 +135,8 @@ export default function HorizonFeedback() {
     };
 
     const handleSubmit = async () => {
-        if (!name.trim() || !email.trim() || rating === 0) return;
+        const emailValid = /\S+@\S+\.\S+/.test(email.trim());
+        if (!name.trim() || !emailValid || rating === 0) return;
         setLoading(true);
         const entry = {
             id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -297,8 +298,8 @@ export default function HorizonFeedback() {
                             <label style={S.label}>Comments (optional)</label>
                             <textarea style={S.textarea} placeholder="What was the highlight of your experience? Any moments that stood out?" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
-                        <button style={{ ...S.submitBtn, opacity: !name.trim() || !email.trim() || rating === 0 ? 0.4 : 1, cursor: !name.trim() || !email.trim() || rating === 0 ? "not-allowed" : "pointer" }}
-                            onClick={handleSubmit} disabled={!name.trim() || !email.trim() || rating === 0 || loading}>
+                        <button style={{ ...S.submitBtn, opacity: !name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 ? 0.4 : 1, cursor: !name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 ? "not-allowed" : "pointer" }}
+                            onClick={handleSubmit} disabled={!name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 || loading}>
                             {loading ? "Submitting..." : "Submit Feedback"}
                         </button>
                     </div>
