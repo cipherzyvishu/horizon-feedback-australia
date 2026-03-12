@@ -64,6 +64,11 @@ export default function HorizonFeedback() {
     const [animateIn, setAnimateIn] = useState(true);
     const [sheetsStatus, setSheetsStatus] = useState("");
     const [sheetsError, setSheetsError] = useState("");
+    // Validation error states
+    const [nameError, setNameError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [ratingError, setRatingError] = useState("");
+    const [submitError, setSubmitError] = useState("");
 
     useEffect(() => {
         setTimeout(() => setAnimateIn(false), 600);
@@ -88,8 +93,45 @@ export default function HorizonFeedback() {
         setAdminLoading(false);
     }, []);
 
+    // Validation helpers
+    const validateName = () => {
+        if (!name.trim()) {
+            setNameError("Name is required");
+            return false;
+        }
+        setNameError("");
+        return true;
+    };
+    const validateEmail = () => {
+        const emailValid = /\S+@\S+\.\S+/.test(email.trim());
+        if (!email.trim()) {
+            setEmailError("Email is required");
+            return false;
+        }
+        if (!emailValid) {
+            setEmailError("Enter a valid email address");
+            return false;
+        }
+        setEmailError("");
+        return true;
+    };
+    const validateRating = () => {
+        if (rating === 0) {
+            setRatingError("Please select a rating");
+            return false;
+        }
+        setRatingError("");
+        return true;
+    };
+    const runAllValidations = () => {
+        const v1 = validateName();
+        const v2 = validateEmail();
+        const v3 = validateRating();
+        return v1 && v2 && v3;
+    };
     const postToSheets = async (entry: any) => {
         setSheetsError("");
+        setSubmitError("");
         try {
             const resp = await fetch(WEBHOOK_URL, {
                 method: "POST",
@@ -100,9 +142,15 @@ export default function HorizonFeedback() {
                     timestamp: new Date(entry.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                 }),
             });
+            if (!resp.ok) {
+                setSubmitError("Couldn't send your response – please check your network and try again.");
+                setSheetsError(`HTTP ${resp.status} ${resp.statusText}`);
+                return;
+            }
             console.log("Webhook response:", resp.status, resp.statusText);
         } catch (e: any) {
             console.error("Webhook sync failed:", e);
+            setSubmitError("Couldn't send your response – please check your network and try again.");
             setSheetsError("Sync failed: " + e.message);
         }
     };
@@ -135,13 +183,21 @@ export default function HorizonFeedback() {
     };
 
     const handleSubmit = async () => {
-        const emailValid = /\S+@\S+\.\S+/.test(email.trim());
-        if (!name.trim() || !emailValid || rating === 0) return;
+        // Run validations; if any fail, abort submission
+        if (!runAllValidations()) {
+            return;
+        }
         setLoading(true);
+        setSubmitError("");
+        setSheetsError(""); // clear previous errors
         const entry = {
             id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-            name: name.trim(), email: email.trim(), session, rating,
-            ratingLabel: getZone(rating).label, comment: comment.trim(),
+            name: name.trim(),
+            email: email.trim(),
+            session,
+            rating,
+            ratingLabel: getZone(rating).label,
+            comment: comment.trim(),
             timestamp: new Date().toISOString(),
         };
         // Save to localStorage
@@ -173,7 +229,7 @@ export default function HorizonFeedback() {
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     };
 
-    const resetForm = () => { setName(""); setEmail(""); setSession(SESSIONS[0]); setRating(0); setComment(""); setSubmitted(false); setView("submit"); };
+    const resetForm = () => { setName(""); setEmail(""); setSession(SESSIONS[0]); setRating(0); setComment(""); setSubmitted(false); setView("submit"); setNameError(""); setEmailError(""); setRatingError(""); setSubmitError(""); };
     const openAdmin = () => { setView("admin"); setAdminAuth(false); setAdminPass(""); };
     const authAdmin = () => { if (adminPass === "Zycus@2416636") { setAdminAuth(true); loadFeedback(); } };
 
@@ -191,6 +247,7 @@ export default function HorizonFeedback() {
             <style>{`
               @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
               button { touch-action: manipulation; }
+              textarea:focus::placeholder { color: transparent; }
               @media (max-width: 600px) {
                 .hf-container { padding: 24px 14px !important; }
                 .hf-card { padding: 24px 16px !important; border-radius: 16px !important; overflow: hidden; }
@@ -240,11 +297,13 @@ export default function HorizonFeedback() {
                         <p style={S.cardSub}>We&apos;d love to hear what made Horizon special for you!</p>
                         <div style={S.field}>
                             <label style={S.label}>Your Name <span style={{ color: C.gold }}>*</span></label>
-                            <input style={S.input} placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => setName(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
+                            <input style={S.input} placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => { setName(e.target.value); if (e.target.value.trim()) setNameError(""); }} onFocus={inputFocus} onBlur={() => { if (!name.trim()) setNameError("Name is required"); }} />
+                            {nameError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{nameError}</div>}
                         </div>
                         <div style={S.field}>
                             <label style={S.label}>Email <span style={{ color: C.gold }}>*</span></label>
-                            <input style={S.input} placeholder="sarah@company.com" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={inputFocus} onBlur={inputBlur} />
+                            <input style={S.input} placeholder="sarah@company.com" value={email} onChange={(e) => { setEmail(e.target.value); if (/\S+@\S+\.\S+/.test(e.target.value.trim())) setEmailError(""); }} onFocus={inputFocus} onBlur={() => { if (!email.trim()) setEmailError("Email is required"); else if (!/\S+@\S+\.\S+/.test(email.trim())) setEmailError("Enter a valid email address"); }} />
+                            {emailError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{emailError}</div>}
                         </div>
 
                         <div style={S.field}>
@@ -283,7 +342,7 @@ export default function HorizonFeedback() {
                                                             transform: active ? "scale(1.15)" : hov ? "scale(1.06)" : "scale(1)",
                                                             boxShadow: active && isFeatured ? `0 0 16px ${z.bg}, 0 4px 12px rgba(0,0,0,0.3)` : active ? `0 0 10px ${z.bg}` : "none",
                                                             fontWeight: isFeatured ? 700 : 500,
-                                                        }} onClick={() => setRating(v)} onMouseEnter={() => setHovered(v)} onMouseLeave={() => setHovered(0)}>
+                                                        }} onClick={() => { setRating(v); setRatingError(""); }} onMouseEnter={() => setHovered(v)} onMouseLeave={() => setHovered(0)}>
                                                             {v}
                                                         </button>
                                                     );
@@ -293,15 +352,17 @@ export default function HorizonFeedback() {
                                     );
                                 })}
                             </div>
+                            {ratingError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{ratingError}</div>}
                         </div>
                         <div style={S.field}>
                             <label style={S.label}>Comments (optional)</label>
                             <textarea style={S.textarea} placeholder="What was the highlight of your experience? Any moments that stood out?" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} onFocus={inputFocus} onBlur={inputBlur} />
                         </div>
-                        <button style={{ ...S.submitBtn, opacity: !name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 ? 0.4 : 1, cursor: !name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 ? "not-allowed" : "pointer" }}
-                            onClick={handleSubmit} disabled={!name.trim() || !/\S+@\S+\.\S+/.test(email.trim()) || rating === 0 || loading}>
+                        <button style={{ ...S.submitBtn, opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer" }}
+                            onClick={handleSubmit} disabled={loading}>
                             {loading ? "Submitting..." : "Submit Feedback"}
                         </button>
+                        {submitError && <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 8, padding: "10px 14px", marginTop: 10, color: "#ef4444", fontSize: 13, textAlign: "center" as const }}>{submitError}</div>}
                     </div>
                 )}
 
