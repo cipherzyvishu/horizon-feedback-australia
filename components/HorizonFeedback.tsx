@@ -284,10 +284,10 @@ export default function HorizonFeedback() {
                 {/* HEADER with actual logos */}
                 <div style={S.header}>
                     <img src={HORIZON_LOGO} alt="Zycus Horizon" className="hf-logo" style={{ width: "100%", maxWidth: 340, marginBottom: 8 }} />
-                    <div style={S.editionText}>EU &amp; UK Edition 2026</div>
+                    <div style={S.editionText}>AUSTRALIA Edition 2026</div>
                     <DiamondDivider />
-                    <div style={S.venueLine}>InterContinental Vienna, Austria</div>
-                    <div style={{ ...S.venueLine, marginTop: 2 }}>March 10–12, 2026</div>
+                    <div style={S.venueLine}>RACV Cape Schanck Resort, Mornington Peninsula, Near Melbourne, Australia</div>
+                    <div style={{ ...S.venueLine, marginTop: 2 }}>21-22 April, 2026</div>
                 </div>
 
                 {/* SUBMIT */}
@@ -507,7 +507,7 @@ export default function HorizonFeedback() {
                     {view !== "submit" && <button style={S.footerLink} onClick={resetForm}>← Submit Feedback</button>}
                     {view !== "admin" && <button style={S.footerLink} onClick={openAdmin}>Admin Dashboard →</button>}
                 </div>
-                <div style={S.powered}>Powered by Zycus · Horizon EU &amp; UK 2026</div>
+                <div style={S.powered}>Powered by Zycus · Horizon AUSTRALIA 2026</div>
             </div>
         </div>
     );
