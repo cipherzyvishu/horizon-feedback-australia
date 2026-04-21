@@ -52,6 +52,8 @@ export default function HorizonFeedback() {
     const [email, setEmail] = useState("");
     const [session, setSession] = useState(SESSIONS[0]);
     const [rating, setRating] = useState(0);
+    const [agenticExcitement, setAgenticExcitement] = useState(0);
+    const [zycusConsideration, setZycusConsideration] = useState(0);
     const [comment, setComment] = useState("");
     const [feedbackList, setFeedbackList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -68,6 +70,8 @@ export default function HorizonFeedback() {
     const [nameError, setNameError] = useState("");
     const [emailError, setEmailError] = useState("");
     const [ratingError, setRatingError] = useState("");
+    const [agenticExcitementError, setAgenticExcitementError] = useState("");
+    const [zycusConsiderationError, setZycusConsiderationError] = useState("");
     const [submitError, setSubmitError] = useState("");
 
     useEffect(() => {
@@ -123,11 +127,29 @@ export default function HorizonFeedback() {
         setRatingError("");
         return true;
     };
+    const validateAgenticExcitement = () => {
+        if (agenticExcitement === 0) {
+            setAgenticExcitementError("Please tap a number to respond");
+            return false;
+        }
+        setAgenticExcitementError("");
+        return true;
+    };
+    const validateZycusConsideration = () => {
+        if (zycusConsideration === 0) {
+            setZycusConsiderationError("Please tap a number to respond");
+            return false;
+        }
+        setZycusConsiderationError("");
+        return true;
+    };
     const runAllValidations = () => {
         const v1 = validateName();
         const v2 = validateEmail();
         const v3 = validateRating();
-        return v1 && v2 && v3;
+        const v4 = validateAgenticExcitement();
+        const v5 = validateZycusConsideration();
+        return v1 && v2 && v3 && v4 && v5;
     };
     const postToSheets = async (entry: any) => {
         setSheetsError("");
@@ -139,6 +161,8 @@ export default function HorizonFeedback() {
                 body: JSON.stringify({
                     name: entry.name, email: entry.email || "", session: entry.session,
                     rating: entry.rating, ratingLabel: entry.ratingLabel, comment: entry.comment || "",
+                    agenticExcitement: entry.agenticExcitement,
+                    zycusConsideration: entry.zycusConsideration,
                     timestamp: new Date(entry.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                 }),
             });
@@ -197,6 +221,8 @@ export default function HorizonFeedback() {
             session,
             rating,
             ratingLabel: getZone(rating).label,
+            agenticExcitement,
+            zycusConsideration,
             comment: comment.trim(),
             timestamp: new Date().toISOString(),
         };
@@ -214,9 +240,10 @@ export default function HorizonFeedback() {
 
     const exportCSV = () => {
         if (filteredFeedback.length === 0) return;
-        const headers = ["Name", "Email", "Session", "Rating (1-10)", "Rating Label", "Comment", "Date & Time"];
+        const headers = ["Name", "Email", "Session", "Rating (1-10)", "Rating Label", "Agentic AI Excitement (1-10)", "Zycus Consideration (1-10)", "Comment", "Date & Time"];
         const rows = filteredFeedback.map((f: any) => [
             f.name, f.email || "", f.session, f.rating, f.ratingLabel,
+            f.agenticExcitement ?? "", f.zycusConsideration ?? "",
             (f.comment || "").replace(/"/g, '""'),
             new Date(f.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
         ]);
@@ -229,7 +256,7 @@ export default function HorizonFeedback() {
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     };
 
-    const resetForm = () => { setName(""); setEmail(""); setSession(SESSIONS[0]); setRating(0); setComment(""); setSubmitted(false); setView("submit"); setNameError(""); setEmailError(""); setRatingError(""); setSubmitError(""); };
+    const resetForm = () => { setName(""); setEmail(""); setSession(SESSIONS[0]); setRating(0); setAgenticExcitement(0); setZycusConsideration(0); setComment(""); setSubmitted(false); setView("submit"); setNameError(""); setEmailError(""); setRatingError(""); setAgenticExcitementError(""); setZycusConsiderationError(""); setSubmitError(""); };
     const openAdmin = () => { setView("admin"); setAdminAuth(false); setAdminPass(""); };
     const authAdmin = () => { if (adminPass === "Zycus@2416636") { setAdminAuth(true); loadFeedback(); } };
 
@@ -257,6 +284,7 @@ export default function HorizonFeedback() {
                 .hf-container { padding: 20px 12px !important; }
                 .hf-card { padding: 20px 12px !important; }
                 .hf-logo { max-width: 210px !important; }
+                .hf-poll-btn { min-width: 28px !important; height: 36px !important; font-size: 13px !important; }
                 .hf-zone-row { gap: 4px !important; overflow: hidden; }
                 .hf-zone-card { min-width: 0; padding-left: 4px !important; padding-right: 4px !important; }
                 .hf-zone-detractor { flex: 1.2 !important; }
@@ -273,6 +301,7 @@ export default function HorizonFeedback() {
                 .hf-zone-btns { gap: 1px !important; }
                 .hf-zone-btn { width: 24px !important; height: 24px !important; font-size: 11px !important; border-radius: 12px !important; }
                 .hf-stats-row { flex-direction: column !important; gap: 8px !important; }
+                .hf-poll-btn { min-width: 24px !important; height: 32px !important; font-size: 12px !important; }
               }
             `}</style>
             <div style={S.bgGrid} />
@@ -354,6 +383,41 @@ export default function HorizonFeedback() {
                             </div>
                             {ratingError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{ratingError}</div>}
                         </div>
+
+                        {/* POLL QUESTION 1 OF 2 */}
+                        <div style={S.pollCard}>
+                            
+                            <div style={S.pollQuestion}>
+                                On a scale of 1–10, how excited are you about Agentic AI and its potential to transform your procurement operations? <span style={{ color: C.gold }}>*</span>
+                            </div>
+                            <div style={S.pollBtnRow}>
+                                {ALL_RATINGS.map((v) => {
+                                    const active = agenticExcitement === v;
+                                    return (
+                                        <button key={v} type="button" className="hf-poll-btn" style={{
+                                            ...S.pollNumBtn,
+                                            background: active ? C.gold : "transparent",
+                                            borderColor: active ? C.gold : C.white20,
+                                            color: active ? C.navy : C.white,
+                                            transform: active ? "scale(1.08)" : "scale(1)",
+                                            boxShadow: active ? `0 4px 14px ${C.goldDim}` : "none",
+                                        }} onClick={() => { setAgenticExcitement(v); setAgenticExcitementError(""); }}>
+                                            {v}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <div style={S.pollAnchors}>
+                                <span>Not excited at all</span>
+                                <span>Extremely excited</span>
+                            </div>
+                           
+                            
+                            {agenticExcitementError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>{agenticExcitementError}</div>}
+                        </div>
+
+                        
+
                         <div style={S.field}>
                             <label style={S.label}>Comments (optional)</label>
                             <textarea style={S.textarea} placeholder="What was the highlight of your experience? Any moments that stood out?" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} onFocus={inputFocus} onBlur={inputBlur} />
@@ -491,6 +555,12 @@ export default function HorizonFeedback() {
                                                 </span>
                                             </div>
                                             <div style={{ fontSize: 12, color: C.gold, opacity: 0.7, marginBottom: 6 }}>{f.session}</div>
+                                            {(f.agenticExcitement || f.zycusConsideration) && (
+                                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                                                    {f.agenticExcitement ? <span style={{ fontSize: 11, color: C.white60, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 6, padding: "3px 8px" }}>Agentic AI excitement: <strong style={{ color: C.white }}>{f.agenticExcitement}/10</strong></span> : null}
+                                                    {f.zycusConsideration ? <span style={{ fontSize: 11, color: C.white60, background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 6, padding: "3px 8px" }}>Zycus consideration: <strong style={{ color: C.white }}>{f.zycusConsideration}/10</strong></span> : null}
+                                                </div>
+                                            )}
                                             {f.comment && <div style={{ fontSize: 14, color: C.white60, fontStyle: "italic", lineHeight: 1.5, marginBottom: 6 }}>&ldquo;{f.comment}&rdquo;</div>}
                                             <div style={{ fontSize: 11, color: C.white20 }}>
                                                 {new Date(f.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -543,6 +613,14 @@ const S: Record<string, React.CSSProperties> = {
     statLabel: { fontSize: 10, color: C.white40, marginTop: 4, letterSpacing: 1, textTransform: "uppercase", fontWeight: 500 },
     distWrap: { background: C.white05, borderRadius: 14, padding: "18px 20px", marginBottom: 20, border: `1px solid ${C.white10}` },
     feedbackItem: { background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 14, padding: "14px 16px" },
+    pollCard: { background: C.white05, border: `1px solid ${C.white10}`, borderRadius: 14, padding: "18px 18px 16px", marginBottom: 20 },
+    pollEyebrow: { fontSize: 11, fontWeight: 700, letterSpacing: 1.2, color: C.white40, textTransform: "uppercase", marginBottom: 8 },
+    pollQuestion: { fontFamily: "'Caladea', serif", fontSize: 16, fontWeight: 700, color: C.white, lineHeight: 1.45, marginBottom: 16 },
+    pollBtnRow: { display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "space-between", marginBottom: 8 },
+    pollNumBtn: { flex: "1 1 0", minWidth: 34, height: 40, padding: 0, fontFamily: "'Caladea', serif", fontSize: 14, fontWeight: 600, border: "1px solid", borderRadius: 8, cursor: "pointer", transition: "all 0.2s ease" },
+    pollAnchors: { display: "flex", justifyContent: "space-between", fontSize: 12, color: C.white40, marginTop: 4 },
+    pollDivider: { height: 1, background: C.white10, margin: "12px 0 10px" },
+    pollHint: { fontSize: 12, color: C.white40 },
     footer: { display: "flex", justifyContent: "center", gap: 24, marginTop: 24 },
     footerLink: { fontSize: 13, color: C.gold, opacity: 0.6, background: "none", border: "none", cursor: "pointer", fontFamily: "'Caladea', serif", textDecoration: "underline", textUnderlineOffset: 3 },
     powered: { textAlign: "center", fontSize: 11, color: C.white20, marginTop: 20, letterSpacing: 0.5 },
