@@ -148,8 +148,7 @@ export default function HorizonFeedback() {
         const v2 = validateEmail();
         const v3 = validateRating();
         const v4 = validateAgenticExcitement();
-        const v5 = validateZycusConsideration();
-        return v1 && v2 && v3 && v4 && v5;
+        return v1 && v2 && v3 && v4;
     };
     const postToSheets = async (entry: any) => {
         setSheetsError("");
@@ -415,8 +414,6 @@ export default function HorizonFeedback() {
                             
                             {agenticExcitementError && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>{agenticExcitementError}</div>}
                         </div>
-
-                        
 
                         <div style={S.field}>
                             <label style={S.label}>Comments (optional)</label>
